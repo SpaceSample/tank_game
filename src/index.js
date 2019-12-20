@@ -14,8 +14,7 @@ serviceWorker.unregister();
 
 import game from './game/game';
 import * as serviceWorker from './serviceWorker';
-console.log('=============');
-console.log(game);
-console.log('=============');
+
+document.body.appendChild(game.view);
 
 serviceWorker.unregister();
