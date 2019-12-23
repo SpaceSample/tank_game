@@ -15,6 +15,8 @@ serviceWorker.unregister();
 import game from './game/game';
 import * as serviceWorker from './serviceWorker';
 
+// TODO remove this debug flag
+window.__DEBUG = true;
 document.body.appendChild(game.view);
 
 serviceWorker.unregister();
