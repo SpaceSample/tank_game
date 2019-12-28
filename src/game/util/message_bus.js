@@ -1,20 +1,37 @@
-const listenerMap = new Map();
+class MsgBus {
+    constructor() {
+        this.listenerMap = new Map();
+    }
 
-const listen = (msgType, callBack) => {
-    const list = listenerMap.get(msgType) || [];
-    list.push(callBack);
+    listen (msgType, callBack) {
+        let list = this.listenerMap.get(msgType);
+        if (!list) {
+            list = [];
+            this.listenerMap.set(msgType, list);
+        }
+        list.push(callBack);
+    }
+
+    unListen (msgType, callBack) {
+        const list = this.listenerMap.get(msgType);
+        if (!list){
+            return;
+        }
+        const index = list.indexOf(callBack);
+        if (index<0){
+            return;
+        }
+        list[index] = null;
+    }
+
+    send (msgType, content) {
+        const list = this.listenerMap.get(msgType) || [];
+        for(let i in list) {
+            list[i](content);
+        }
+    }
 };
 
-const unListen = (msgType, callBack) => {
-    const list = listenerMap.get(msgType);
-    if (!list){
-        return;
-    }
-    const index = list.indexOf(callBack);
-    if (index<0){
-        return;
-    }
-    list[index] = null;
-};
+const msgBus = new MsgBus();
 
-export {listen, unListen};
+export default msgBus;
