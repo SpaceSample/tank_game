@@ -6,6 +6,8 @@ class Tank {
     constructor(){
         msgBus.listen('game.start', () => this.onGameStart());
         msgBus.listen('user.key_left', () => this.onLeft());
+        msgBus.listen('user.key_up', () => this.onUp());
+        msgBus.listen('user.key_down', () => this.onDown());
         msgBus.listen('user.key_right', () => this.onRight());
     }
 
@@ -26,6 +28,7 @@ class Tank {
 
     onLeft(){
         this.sp.x -= Tank.speed;
+        this.sp.rotation = - Math.PI/2;
         if (this.sp.x < 0){
             this.sp.x = 0;
         }
@@ -33,9 +36,27 @@ class Tank {
 
     onRight() {
         this.sp.x += Tank.speed;
+        this.sp.rotation = Math.PI/2;
         const limit = gameVars.getWidth();
         if (this.sp.x > limit){
             this.sp.x = limit;
+        }
+    }
+
+    onUp(){
+        this.sp.y -= Tank.speed;
+        this.sp.rotation = 0;
+        if (this.sp.y < 0){
+            this.sp.y = 0;
+        }
+    }
+
+    onDown() {
+        this.sp.y += Tank.speed;
+        this.sp.rotation = Math.PI;
+        const limit = gameVars.getHeight();
+        if (this.sp.y > limit){
+            this.sp.y = limit;
         }
     }
 }
