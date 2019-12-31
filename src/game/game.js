@@ -38,8 +38,11 @@ class Game{
 
     init(app){
         this.pixiApp = app;
+        if (this.loaderTmp) {
+            this.loaderTmp.forEach(resUrl => app.loader.add(resUrl));
+        }
         this.updateStatus(GAME_STATUS.INIT);
-        game.pixiApp.loader.load(() => {
+        this.pixiApp.loader.load(() => {
             setTimeout(() => this.onResLoaded(), 1000);
             // TODO 
             if(window.__DEBUG){
@@ -48,7 +51,7 @@ class Game{
             }
         });
         msgBus.listen('start_screen.start', () => this.updateStatus(GAME_STATUS.PLAYING));
-        game.pixiApp.ticker.start();
+        this.pixiApp.ticker.start();
     }
 
     onResLoaded(){
@@ -59,7 +62,14 @@ class Game{
         if (this.status !== GAME_STATUS.UNINIT ) {
             throw new Error('Cannot add to loader after init');
         }
-//        game.loader.add(resUrl);
+        if (this.pixiApp){
+            this.pixiApp.loader.add(resUrl);
+        } else {
+            if(!this.loaderTmp) {
+                this.loaderTmp = [];
+            }
+            this.loaderTmp.push(resUrl);
+        }
     }
 
     getStage(){

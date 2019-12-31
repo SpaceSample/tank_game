@@ -6,22 +6,17 @@ const game = Game.getInstance();
 
 class Tank {
     constructor(){
-        msgBus.listen('game.statusChange', content => this.onGameStatusChange(content));
         msgBus.listen('user.key_left', () => this.onLeft());
         msgBus.listen('user.key_up', () => this.onUp());
         msgBus.listen('user.key_down', () => this.onDown());
         msgBus.listen('user.key_right', () => this.onRight());
     }
 
-    onGameStatusChange(content){
-        if (content.new === Game.STATUS.PLAYING) {
-            this.onGameStart();
-        }
-    }
-
     onGameStart(){
         if (!this.sp) {
             this.sp = new PIXI.Sprite(PIXI.utils.TextureCache['assets/tank1.png']);
+            console.log(PIXI.utils.TextureCache);
+            console.log(PIXI.utils.TextureCache['assets/tank1.png']);
             this.sp.anchor.set(0.5);
             game.getStage().addChild(this.sp);
         }
@@ -78,6 +73,12 @@ Tank.getInstance = () => {
     }
     return tank;
 };
+
+msgBus.listen('game.statusChange', content => {
+    if (content.new === Game.STATUS.PLAYING) {
+        Tank.getInstance().onGameStart();
+    }
+});
 
 game.addToLoader('assets/tank1.png');
 game.addToLoader('assets/bullet.png');
