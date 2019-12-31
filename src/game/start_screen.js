@@ -1,7 +1,8 @@
 import * as PIXI from 'pixi.js';
-import gameVars from './util/game_vars';
 import msgBus from './util/message_bus';
+import Game from './game';
 
+const game = Game.getInstance();
 const START_STR = 'Start Game/开始游戏';
 const startText = new PIXI.Text(START_STR, {
     fontFamily : 'Arial',
@@ -11,11 +12,9 @@ const startText = new PIXI.Text(START_STR, {
 );
 
 function onClickStart(){
-    if (gameVars.status === gameVars.GAME_STATUS.LOADED || 
-        gameVars.status === gameVars.GAME_STATUS.GAME_OVER) {
-        gameVars.status = gameVars.GAME_STATUS.PLAYING;
-        msgBus.send('game.start');
-        hide();
+    if (game.status === Game.STATUS.LOADED || 
+        game.status === Game.STATUS.GAME_OVER) {
+        msgBus.send('start_screen.start')
     }
 }
 
@@ -25,8 +24,8 @@ function show(stage){
     if (notAdded) {
         stage.addChild(startText);
         startText.anchor.set(0.5);
-        startText.x = Math.floor(gameVars.getWidth()/2);
-        startText.y = Math.floor(gameVars.getHeight()/2);
+        startText.x = Math.floor(game.getWidth()/2);
+        startText.y = Math.floor(game.getHeight()/2);
         startText.interactive = true;
         startText.buttonMode = true;
         notAdded = false;
@@ -40,5 +39,15 @@ function show(stage){
 function hide(){
     startText.visible = false;
 }
+
+function onGameStatusChange(content) {
+    if (content.new === Game.STATUS.LOADED) {
+        show(game.getStage());
+    } else if (content.new === Game.STATUS.PLAYING) {
+        hide();
+    }
+}
+
+msgBus.listen('game.statusChange', onGameStatusChange);
 
 export {show, hide};

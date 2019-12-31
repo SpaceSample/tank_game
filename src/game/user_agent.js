@@ -20,4 +20,6 @@ class UserAgent {
 
 const singleton = new UserAgent();
 
+singleton.init();
+
 export default singleton;

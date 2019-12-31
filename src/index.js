@@ -12,11 +12,11 @@ ReactDOM.render(<App />, document.getElementById('root'));
 serviceWorker.unregister();
 */
 
-import game from './game/game';
+import app from './app';
 import * as serviceWorker from './serviceWorker';
 
 // TODO remove this debug flag
 window.__DEBUG = true;
-document.body.appendChild(game.view);
+document.body.appendChild(app.view);
 
 serviceWorker.unregister();

@@ -26,8 +26,13 @@ class MsgBus {
 
     send (msgType, content) {
         const list = this.listenerMap.get(msgType) || [];
+        if(window.__DEBUG){
+            console.log('[msg]: '+msgType);
+            content&&console.log(content);
+        }
+
         for(let i in list) {
-            list[i](content);
+            list[i] && list[i](content);
         }
     }
 };
