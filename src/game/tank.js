@@ -1,6 +1,7 @@
 import msgBus from './util/message_bus';
 import * as PIXI from 'pixi.js';
 import Game from './game';
+import Bullet from './bullet';
 
 const game = Game.getInstance();
 
@@ -10,6 +11,7 @@ class Tank {
         msgBus.listen('user.key_up', () => this.onUp());
         msgBus.listen('user.key_down', () => this.onDown());
         msgBus.listen('user.key_right', () => this.onRight());
+        msgBus.listen('user.key_space', () => this.fire());
     }
 
     onGameStart(){
@@ -62,9 +64,16 @@ class Tank {
             this.sp.y = limit;
         }
     }
+
+    fire(){
+        if (game.status === Game.STATUS.PLAYING){
+            Bullet.getOne(this, this.sp.rotation, Tank.bulletSpeed);
+        }
+    }
 }
 
 Tank.speed = 10;
+Tank.bulletSpeed = 20;
 
 let tank = null;
 Tank.getInstance = () => {
@@ -81,6 +90,5 @@ msgBus.listen('game.statusChange', content => {
 });
 
 game.addToLoader('assets/tank1.png');
-game.addToLoader('assets/bullet.png');
 
 export default Tank;

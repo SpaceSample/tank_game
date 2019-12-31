@@ -76,6 +76,10 @@ class Game{
         return this.pixiApp.stage;
     }
 
+    getTicker() {
+        return this.pixiApp.ticker;
+    }
+
     getWidth() {
         return window.innerWidth;
     }
