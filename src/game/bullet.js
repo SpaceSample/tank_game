@@ -7,7 +7,7 @@ class Bullet {
     constructor(owner, direction, speed){
         this.sp = new PIXI.Sprite(PIXI.utils.TextureCache['assets/bullet.png']);
         this.sp.anchor.set(0.5);
-        game.getStage().addChild(this.sp);
+        game.getPlayContainer().addChild(this.sp);
         game.getTicker().add(() => this.onTick());
         this.reset(owner, direction, speed);
     }

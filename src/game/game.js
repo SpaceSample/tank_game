@@ -1,4 +1,5 @@
 import msgBus from './util/message_bus';
+import * as PIXI from 'pixi.js';
 
 const GAME_STATUS = {
     UNINIT: 0,
@@ -28,6 +29,12 @@ class Game{
             if (this.status !== GAME_STATUS.LOADED && this.status !== GAME_STATUS.GAME_OVER) {
                 throw new Error('Game status wrong, do not start when init or playing.');
             }
+            this.playContainer.visible = true;
+        } else if(newStatus === GAME_STATUS.GAME_OVER) {
+            if (this.status !== GAME_STATUS.PLAYING) {
+                throw new Error('Game status wrong, should from playing.');
+            }
+            this.playContainer.visible = false;
         } else {
             throw new Error('Wrong game status');
         }
@@ -41,6 +48,9 @@ class Game{
         if (this.loaderTmp) {
             this.loaderTmp.forEach(resUrl => app.loader.add(resUrl));
         }
+        this.playContainer = new PIXI.Container();
+        this.playContainer.visible = false;
+        app.stage.addChild(this.playContainer);
         this.updateStatus(GAME_STATUS.INIT);
         this.pixiApp.loader.load(() => {
             setTimeout(() => this.onResLoaded(), 1000);
@@ -74,6 +84,10 @@ class Game{
 
     getStage(){
         return this.pixiApp.stage;
+    }
+
+    getPlayContainer(){
+        return this.playContainer;
     }
 
     getTicker() {

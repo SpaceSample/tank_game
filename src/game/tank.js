@@ -17,10 +17,8 @@ class Tank {
     onGameStart(){
         if (!this.sp) {
             this.sp = new PIXI.Sprite(PIXI.utils.TextureCache['assets/tank1.png']);
-            console.log(PIXI.utils.TextureCache);
-            console.log(PIXI.utils.TextureCache['assets/tank1.png']);
             this.sp.anchor.set(0.5);
-            game.getStage().addChild(this.sp);
+            game.getPlayContainer().addChild(this.sp);
         }
         this.sp.x = Math.floor(game.getWidth()/2);
         this.sp.y = Math.floor(game.getHeight() - 100);

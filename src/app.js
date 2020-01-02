@@ -3,6 +3,7 @@ import './game/user_agent';
 import './game/loading_screen';
 import './game/start_screen';
 import './game/tank';
+import './game/enemy_tank';
 import Game from './game/game';
 
 const app = new PIXI.Application({resizeTo: window});
