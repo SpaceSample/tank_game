@@ -21,8 +21,8 @@ const restartText = new PIXI.Text(RESTART_STR, {
 
 function onClickRestart(){
     if (game.status === Game.STATUS.GAME_OVER) {
-        msgBus.send('gameover_screen.restart');
         hide();
+        msgBus.send('gameover_screen.restart');
     }
 }
 

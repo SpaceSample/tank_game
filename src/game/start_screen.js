@@ -12,8 +12,7 @@ const startText = new PIXI.Text(START_STR, {
 );
 
 function onClickStart(){
-    if (game.status === Game.STATUS.LOADED || 
-        game.status === Game.STATUS.GAME_OVER) {
+    if (game.status === Game.STATUS.LOADED ) {
         msgBus.send('start_screen.start')
     }
 }

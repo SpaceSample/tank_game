@@ -25,6 +25,7 @@ class Tank {
         }
         this.sp.x = Math.floor(game.getWidth()/2);
         this.sp.y = Math.floor(game.getHeight() - 100);
+        this.sp.rotation = 0;
         this.sp.visible = true;
     }
 
