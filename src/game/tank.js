@@ -2,6 +2,8 @@ import msgBus from './util/message_bus';
 import * as PIXI from 'pixi.js';
 import Game from './game';
 import Bullet from './bullet';
+import {checkPoint,  check4PointWithMany} from './util/collision_detection';
+import EnemyTank from './enemy_tank';
 
 const game = Game.getInstance();
 
@@ -19,6 +21,7 @@ class Tank {
             this.sp = new PIXI.Sprite(PIXI.utils.TextureCache['assets/tank1.png']);
             this.sp.anchor.set(0.5);
             game.getPlayContainer().addChild(this.sp);
+            game.getTicker().add(() => this.onTick());
         }
         this.sp.x = Math.floor(game.getWidth()/2);
         this.sp.y = Math.floor(game.getHeight() - 100);
@@ -26,7 +29,15 @@ class Tank {
     }
 
     onTick(){
-        // nothing to do
+      if (game.status === Game.STATUS.PLAYING){
+        const enemyTanks = EnemyTank.getActiveTanks();
+        const hitTank = check4PointWithMany(this.sp, enemyTanks.map(et => et.sp));
+        if (hitTank) {
+          msgBus.send('tank.gameover');
+          return;
+        }
+
+      }
     }
 
     onLeft(){
@@ -77,6 +88,9 @@ let tank = null;
 Tank.getInstance = () => {
     if (!tank){
         tank = new Tank();
+        if(window.__DEBUG){
+          window.mt = tank;
+      }
     }
     return tank;
 };

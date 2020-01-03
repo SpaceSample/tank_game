@@ -14,22 +14,25 @@ class EnemyTank {
         game.getTicker().add(() => this.onTick());
     }
 
-    reset(){
+    reactive(){
         this.sp.x = Math.floor(Math.random() * game.getWidth());
         this.sp.y = 0;
         this.sp.visible = true;
+        aliveTankPool.push(this);
     }
 
-    moveToPool(){
+    moveToIdleTankPool(){
         this.sp.visible = false;
-        tankPool.push(this);
+        idleTankPool.add(this);
+        const i = aliveTankPool.indexOf(this);
+        aliveTankPool.splice(i, 1);
     }
 
     onTick(){
         if(this.sp.visible) {
             this.sp.y += EnemyTank.speed;
             if(this.sp.y > game.getHeight()){
-                this.moveToPool();
+                this.moveToIdleTankPool();
             }
         }
     }
@@ -41,18 +44,26 @@ class EnemyTank {
     }
 
     crash() {
-        // TODO
+      this.moveToIdleTankPool();
+      // TODO
     }
 }
 
 EnemyTank.speed = 1;
 EnemyTank.bulletSpeed = 3;
 
-const tankPool = [];
+const idleTankPool = new Set();
+const aliveTankPool = [];
 
 function sendANewTank(){
-    const tank = tankPool.length ? tankPool.pop() : new EnemyTank();
-    tank.reset();
+    let tank;
+    if(idleTankPool.size){
+      tank = idleTankPool.values().next().value;
+      idleTankPool.delete(tank);
+    } else {
+      tank = new EnemyTank();
+    }
+    tank.reactive();
     waitRandomTime(sendANewTank);
 }
 
@@ -72,6 +83,10 @@ msgBus.listen('game.statusChange', content => {
         onGameStart();
     }
 });
+
+EnemyTank.getActiveTanks = () => {
+  return aliveTankPool;
+};
 
 game.addToLoader('assets/tank2.png');
 

@@ -7,7 +7,7 @@ const START_STR = 'Start Game/开始游戏';
 const startText = new PIXI.Text(START_STR, {
     fontFamily : 'Arial',
     fontSize: 64,
-    fill : 0xff1010,
+    fill : 0x0000cf,
     align : 'center'}
 );
 

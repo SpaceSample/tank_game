@@ -48,6 +48,7 @@ class Game{
         if (this.loaderTmp) {
             this.loaderTmp.forEach(resUrl => app.loader.add(resUrl));
         }
+
         this.playContainer = new PIXI.Container();
         this.playContainer.visible = false;
         app.stage.addChild(this.playContainer);
@@ -58,9 +59,12 @@ class Game{
             if(window.__DEBUG){
                 window.g = game;
                 window.msgBus = msgBus;
+                window.PIXI = PIXI;
             }
         });
         msgBus.listen('start_screen.start', () => this.updateStatus(GAME_STATUS.PLAYING));
+        msgBus.listen('tank.gameover', () => this.updateStatus(GAME_STATUS.GAME_OVER));
+        msgBus.listen('gameover_screen.restart', () => this.updateStatus(GAME_STATUS.PLAYING));
         this.pixiApp.ticker.start();
     }
 
