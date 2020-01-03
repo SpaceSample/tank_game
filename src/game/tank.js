@@ -2,7 +2,7 @@ import msgBus from './util/message_bus';
 import * as PIXI from 'pixi.js';
 import Game from './game';
 import Bullet from './bullet';
-import {checkPoint,  check4PointWithMany} from './util/collision_detection';
+import {/*checkPoint,  */check4PointWithMany} from './util/collision_detection';
 import EnemyTank from './enemy_tank';
 
 const game = Game.getInstance();
@@ -32,12 +32,27 @@ class Tank {
     onTick(){
       if (game.status === Game.STATUS.PLAYING){
         const enemyTanks = EnemyTank.getActiveTanks();
-        const hitTank = check4PointWithMany(this.sp, enemyTanks.map(et => et.sp));
+        const enemyTankSps = enemyTanks.map(et => et.sp);
+
+        const hitTank = check4PointWithMany(this.sp, enemyTankSps);
         if (hitTank) {
           msgBus.send('tank.gameover');
           return;
         }
-
+        let enemyTanksMap = null;
+        const myBullets = Bullet.getAllMine();
+        myBullets.forEach(mb => {
+            const mbHitTank = check4PointWithMany(mb.sp, enemyTankSps);
+            if (mbHitTank){
+                if(!enemyTanksMap) {
+                    enemyTanksMap = new Map();
+                    enemyTanks.forEach(et => enemyTanksMap.set(et.sp, et));
+                }
+                mb.hide();
+                const t = enemyTanksMap.get(mbHitTank);
+                t.crash();
+            }
+        });
       }
     }
 
@@ -77,7 +92,7 @@ class Tank {
 
     fire(){
         if (game.status === Game.STATUS.PLAYING){
-            Bullet.getOne(this, this.sp.rotation, Tank.bulletSpeed);
+            Bullet.getMineOne(this, this.sp.rotation, Tank.bulletSpeed);
         }
     }
 }

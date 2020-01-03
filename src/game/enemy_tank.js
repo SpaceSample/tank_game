@@ -39,7 +39,7 @@ class EnemyTank {
 
     fire(){
         if (game.status === Game.STATUS.PLAYING){
-            Bullet.getOne(this, this.sp.rotation, EnemyTank.bulletSpeed);
+            Bullet.getEnemyOne(this, this.sp.rotation, EnemyTank.bulletSpeed);
         }
     }
 

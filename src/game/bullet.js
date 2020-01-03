@@ -9,15 +9,15 @@ class Bullet {
         this.sp.anchor.set(0.5);
         game.getPlayContainer().addChild(this.sp);
         game.getTicker().add(() => this.onTick());
-        this.reset(owner, direction, speed);
     }
 
-    reset(owner, direction, speed){
+    reactive(owner, direction, speed){
         this.sp.x = owner.sp.x;
         this.sp.y = owner.sp.y;
         this.sp.rotation = direction;
         this.speed = speed;
         this.sp.visible = true;
+        myActiveBulletSet.add(this);
     }
 
     onTick(){
@@ -35,22 +35,30 @@ class Bullet {
 
     hide(){
         this.sp.visible = false;
-        pool.push(this);
+        myBulletPool.push(this);
+        myActiveBulletSet.delete(this);
     }
 }
 
-const pool = [];
+const myBulletPool = [];
+const myActiveBulletSet = new Set();
 
-Bullet.getOne = function(owner, direction, speed){
-    if (pool.length) {
-        const one = pool.pop();
-        one.reset(owner, direction, speed);
-        return one;
+Bullet.getMineOne = function(owner, direction, speed){
+    let one;
+    if (myBulletPool.length) {
+        one = myBulletPool.pop();
     } else {
-        return new Bullet(owner, direction, speed);
+        one = new Bullet(owner, direction, speed);
     }
+    one.reactive(owner, direction, speed);
+    return one;
+}
+
+Bullet.getAllMine = () => {
+    return [...myActiveBulletSet.values()];
 }
 
 game.addToLoader('assets/bullet.png');
+game.addToLoader('assets/bullet2.png');
 
 export default Bullet;
