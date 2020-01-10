@@ -2,16 +2,20 @@ import msgBus from './util/message_bus';
 import * as PIXI from 'pixi.js';
 import Game from './game';
 import Bullet from './bullet';
+import {randomInt} from './util/random';
 
 const game = Game.getInstance();
 
 class EnemyTank {
     constructor(){
+        this.camp = Game.CAMP.ENEMY;
         this.sp = new PIXI.Sprite(PIXI.utils.TextureCache['assets/tank2.png']);
         this.sp.anchor.set(0.5);
         this.sp.rotation = Math.PI;
         game.getPlayContainer().addChild(this.sp);
         game.getTicker().add(() => this.onTick());
+        this.tickCount = 0;
+        this.randomInt = randomInt(1,60);
     }
 
     reactive(){
@@ -34,6 +38,14 @@ class EnemyTank {
             if(this.sp.y > game.getHeight()){
                 this.moveToIdleTankPool();
             }
+
+            this.tickCount++;
+            if(this.tickCount> 1000000) {
+                this.tickCount = 0;
+            }
+            if(this.tickCount%240 === this.randomInt) {
+                this.fire();
+            }
         }
     }
 
@@ -50,7 +62,7 @@ class EnemyTank {
 }
 
 EnemyTank.speed = 1;
-EnemyTank.bulletSpeed = 3;
+EnemyTank.bulletSpeed = 2;
 
 const idleTankPool = new Set();
 const aliveTankPool = [];

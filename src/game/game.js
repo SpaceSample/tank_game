@@ -9,6 +9,11 @@ const GAME_STATUS = {
     GAME_OVER:4
 };
 
+const CAMP = {
+    WE: 0,
+    ENEMY: 1
+};
+
 class Game{
     constructor(){
         this.status = GAME_STATUS.UNINIT;
@@ -108,6 +113,7 @@ class Game{
 }
 
 Game.STATUS = GAME_STATUS;
+Game.CAMP = CAMP;
 // singleton
 const game = new Game();
 Game.getInstance = () => game;

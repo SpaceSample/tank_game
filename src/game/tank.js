@@ -9,6 +9,7 @@ const game = Game.getInstance();
 
 class Tank {
     constructor(){
+        this.camp = Game.CAMP.WE;
         msgBus.listen('user.key_left', () => this.onLeft());
         msgBus.listen('user.key_up', () => this.onUp());
         msgBus.listen('user.key_down', () => this.onDown());
