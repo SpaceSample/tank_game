@@ -2,7 +2,7 @@ import msgBus from './util/message_bus';
 import * as PIXI from 'pixi.js';
 import Game from './game';
 import Bullet from './bullet';
-import {/*checkPoint,  */check4PointWithMany } from './util/collision_detection';
+import {check4PointWithManyPoints, check4PointWithMany } from './util/collision_detection';
 import EnemyTank from './enemy_tank';
 
 const game = Game.getInstance();
@@ -40,54 +40,50 @@ class Tank {
     this.sp.visible = true;
   }
 
+  // return this tank dead or not
   hpChange(dhp) {
-    this.hp -= 3;
+    this.hp -= dhp;
     msgBus.send('tank.hpChange', this.hp);
     if (this.hp <= 0) {
       msgBus.send('tank.gameover');
-      return;
+      return true;
     }
+    return false;
   }
 
   onTick() {
     if (game.status === Game.STATUS.PLAYING) {
       const enemyTanks = EnemyTank.getActiveTanks();
       const enemyTankSps = enemyTanks.map(et => et.sp);
-
       const hitTank = check4PointWithMany(this.sp, enemyTankSps);
-      if (hitTank) {
-        this.hp -= 3;
-        msgBus.send('tank.hpChange', this.hp);
-        if (this.hp <= 0) {
-          msgBus.send('tank.gameover');
+      if (hitTank>=0) {
+        enemyTanks[hitTank].crash();
+        if(this.hpChange(3)) {
           return;
         }
-
       }
 
-      const hitBullet = check4PointWithMany(this.sp, enemyTankSps);
-      if (hitBullet) {
-        this.hp -= 1;
-        msgBus.send('tank.hpChange', this.hp);
-        if (this.hp <= 0) {
-          msgBus.send('tank.gameover');
+      const enemyBullets = Bullet.getAllEnemy();
+      const enemyBulletSps = enemyBullets.map(eb => eb.sp);
+      const hitBullet = check4PointWithManyPoints(this.sp, enemyBulletSps);
+      if (hitBullet>=0) {
+        enemyBullets[hitBullet].hide();
+        if(this.hpChange(1)) {
+          return;
         }
       }
 
-      let enemyTanksMap = null;
+      // let enemyTanksMap = null;
       const myBullets = Bullet.getAllMine();
-      myBullets.forEach(mb => {
-        const mbHitTank = check4PointWithMany(mb.sp, enemyTankSps);
-        if (mbHitTank) {
-          if (!enemyTanksMap) {
-            enemyTanksMap = new Map();
-            enemyTanks.forEach(et => enemyTanksMap.set(et.sp, et));
-          }
-          mb.hide();
-          const t = enemyTanksMap.get(mbHitTank);
-          t.crash();
+      const myBulletsSps = myBullets.map(eb => eb.sp);
+      enemyTanks.forEach(et => {
+        const hitIndex = check4PointWithManyPoints(et.sp, myBulletsSps);
+        if (hitIndex>=0) {
+          myBullets[hitIndex].hide();
+          et.crash();
         }
       });
+
     }
   }
 

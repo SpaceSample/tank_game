@@ -31,7 +31,7 @@ function checkCircle(sp1, sp2){
   return (dx*dx + dy*dy) <= d2;
 }
 
-function checkPoint(p, sp){
+function checkPointInSprite(p, sp){
   const b = getBox(sp);
   const lp = sp.toLocal(p);
   
@@ -44,24 +44,39 @@ function check4Point(sp1, sp2){
   }
   const b = getBox(sp1);
   const p1 = sp1.toGlobal(new PIXI.Point(b.x1, b.y1));
-  if(checkPoint(p1, sp2)){
+  if(checkPointInSprite(p1, sp2)){
   return true;
   }
   const p2 = sp1.toGlobal(new PIXI.Point(b.x2, b.y1));
-  if(checkPoint(p2, sp2)){
+  if(checkPointInSprite(p2, sp2)){
   return true;
   }
   const p3 = sp1.toGlobal(new PIXI.Point(b.x1, b.y2));
-  if(checkPoint(p3, sp2)){
+  if(checkPointInSprite(p3, sp2)){
   return true;
   }
   const p4 = sp1.toGlobal(new PIXI.Point(b.x2, b.y2));
-  if(checkPoint(p4, sp2)){
+  if(checkPointInSprite(p4, sp2)){
   return true;
   }
   return false;
 }
 
+//check any of these points in this sprite or not
+function check4PointWithManyPoints(sp1, sps){
+  for(let i in sps){
+    const sp2 = sps[i];
+    if (!checkCircle(sp1, sp2)){
+      continue;
+    }
+    if(checkPointInSprite(new PIXI.Point(sp2.x, sp2.y), sp1)){
+      return i;
+    }
+  }
+  return -1;
+}
+
+// check any sprite in sp1 or not.
 function check4PointWithMany(sp1, sps){
   const b = getBox(sp1);
   const p1 = sp1.toGlobal(new PIXI.Point(b.x1, b.y1));
@@ -74,20 +89,20 @@ function check4PointWithMany(sp1, sps){
   if (!checkCircle(sp1, sp2)){
     continue;
   }
-  if(checkPoint(p1, sp2)){
-    return sp2;
+  if(checkPointInSprite(p1, sp2)){
+    return i;
   }
-  if(checkPoint(p2, sp2)){
-    return sp2;
+  if(checkPointInSprite(p2, sp2)){
+    return i;
   }
-  if(checkPoint(p3, sp2)){
-    return sp2;
+  if(checkPointInSprite(p3, sp2)){
+    return i;
   }
-  if(checkPoint(p4, sp2)){
-    return sp2;
+  if(checkPointInSprite(p4, sp2)){
+    return i;
   }
   }
-  return null;
+  return -1;
 }
 
-export {checkPoint, check4Point, check4PointWithMany};
+export {checkPointInSprite, check4Point, check4PointWithMany, check4PointWithManyPoints};

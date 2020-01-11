@@ -87,7 +87,7 @@ function waitRandomTime(callBack) {
 }
 
 function onGameStart(){
-  waitRandomTime(sendANewTank);
+  sendANewTank();
 }
 
 msgBus.listen('game.statusChange', content => {
