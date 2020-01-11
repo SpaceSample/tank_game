@@ -4,6 +4,7 @@ import Game from './game';
 import Bullet from './bullet';
 import {check4PointWithManyPoints, check4PointWithMany } from './util/collision_detection';
 import EnemyTank from './enemy_tank';
+import {explode} from './explode';
 
 const game = Game.getInstance();
 
@@ -38,13 +39,15 @@ class Tank {
     this.sp.rotation = 0;
     this.hp = 3;
     this.sp.visible = true;
+    msgBus.send('tank.hpChange', this.hp);
   }
 
   // return this tank dead or not
-  hpChange(dhp) {
+  changeHp(dhp) {
     this.hp -= dhp;
     msgBus.send('tank.hpChange', this.hp);
     if (this.hp <= 0) {
+      explode(this.sp);
       msgBus.send('tank.gameover');
       return true;
     }
@@ -57,8 +60,9 @@ class Tank {
       const enemyTankSps = enemyTanks.map(et => et.sp);
       const hitTank = check4PointWithMany(this.sp, enemyTankSps);
       if (hitTank>=0) {
+        explode(enemyTankSps[hitTank]);
         enemyTanks[hitTank].crash();
-        if(this.hpChange(3)) {
+        if(this.changeHp(3)) {
           return;
         }
       }
@@ -68,7 +72,7 @@ class Tank {
       const hitBullet = check4PointWithManyPoints(this.sp, enemyBulletSps);
       if (hitBullet>=0) {
         enemyBullets[hitBullet].hide();
-        if(this.hpChange(1)) {
+        if(this.changeHp(1)) {
           return;
         }
       }
@@ -80,7 +84,9 @@ class Tank {
         const hitIndex = check4PointWithManyPoints(et.sp, myBulletsSps);
         if (hitIndex>=0) {
           myBullets[hitIndex].hide();
+          explode(et.sp);
           et.crash();
+          msgBus.send('score.add', 1);
         }
       });
 

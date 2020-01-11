@@ -46,6 +46,10 @@ class Game{
     const old = this.status;
     this.status = newStatus;
     msgBus.send('game.statusChange', {old, new: newStatus});
+
+    if(newStatus === GAME_STATUS.LOADED) {
+      msgBus.send('game.statusChange.loaded');
+    }
   }
 
   init(app){
