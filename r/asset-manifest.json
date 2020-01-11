@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.js": "/tank_game/r/static/js/main.a176c1ea.chunk.js",
+    "main.js.map": "/tank_game/r/static/js/main.a176c1ea.chunk.js.map",
+    "runtime-main.js": "/tank_game/r/static/js/runtime-main.e7e5dec5.js",
+    "runtime-main.js.map": "/tank_game/r/static/js/runtime-main.e7e5dec5.js.map",
+    "static/js/2.cb0053f5.chunk.js": "/tank_game/r/static/js/2.cb0053f5.chunk.js",
+    "static/js/2.cb0053f5.chunk.js.map": "/tank_game/r/static/js/2.cb0053f5.chunk.js.map",
+    "index.html": "/tank_game/r/index.html",
+    "precache-manifest.b604f34963ca9be7afac9d2eb654de38.js": "/tank_game/r/precache-manifest.b604f34963ca9be7afac9d2eb654de38.js",
+    "service-worker.js": "/tank_game/r/service-worker.js",
+    "static/js/2.cb0053f5.chunk.js.LICENSE": "/tank_game/r/static/js/2.cb0053f5.chunk.js.LICENSE"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e7e5dec5.js",
+    "static/js/2.cb0053f5.chunk.js",
+    "static/js/main.a176c1ea.chunk.js"
+  ]
+}
