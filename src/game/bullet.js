@@ -29,7 +29,7 @@ class Bullet {
         } else {
             myActiveBulletSet.add(this);
         }
-        if(owner.camp != this.owner.camp) {
+        if(owner.camp !== this.owner.camp) {
             throw new Error('bullet can not change camp!');
         }
         this.owner = owner;

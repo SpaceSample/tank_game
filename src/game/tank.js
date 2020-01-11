@@ -7,6 +7,12 @@ import EnemyTank from './enemy_tank';
 
 const game = Game.getInstance();
 
+// Tank loading status, cold down time.
+const LOAD_STATUS = {
+    LOADING: 0,
+    READY: 1
+}
+
 class Tank {
     constructor(){
         this.camp = Game.CAMP.WE;
@@ -15,6 +21,9 @@ class Tank {
         msgBus.listen('user.key_down', () => this.onDown());
         msgBus.listen('user.key_right', () => this.onRight());
         msgBus.listen('user.key_space', () => this.fire());
+        this.loadStatus = LOAD_STATUS.READY;
+        const This = this;
+        this.loadReady = () => {This.loadStatus = LOAD_STATUS.READY};
     }
 
     onGameStart(){
@@ -27,6 +36,7 @@ class Tank {
         this.sp.x = Math.floor(game.getWidth()/2);
         this.sp.y = Math.floor(game.getHeight() - 100);
         this.sp.rotation = 0;
+        this.hp = 3;
         this.sp.visible = true;
     }
 
@@ -37,6 +47,8 @@ class Tank {
 
         const hitTank = check4PointWithMany(this.sp, enemyTankSps);
         if (hitTank) {
+          this.hp -= 3;
+          msgBus.send('tank.hpChange', this.hp);
           msgBus.send('tank.gameover');
           return;
         }
@@ -92,14 +104,17 @@ class Tank {
     }
 
     fire(){
-        if (game.status === Game.STATUS.PLAYING){
+        if (game.status === Game.STATUS.PLAYING && this.loadStatus === LOAD_STATUS.READY){
             Bullet.getMineOne(this, this.sp.rotation, Tank.bulletSpeed);
+            this.loadStatus = LOAD_STATUS.LOADING;
+            setTimeout(this.loadReady, Tank.loadColdDown);
         }
     }
 }
 
 Tank.speed = 10;
 Tank.bulletSpeed = 20;
+Tank.loadColdDown = 500;//milliseconds
 
 let tank = null;
 Tank.getInstance = () => {
@@ -107,7 +122,7 @@ Tank.getInstance = () => {
         tank = new Tank();
         if(window.__DEBUG){
           window.mt = tank;
-      }
+      }  
     }
     return tank;
 };
