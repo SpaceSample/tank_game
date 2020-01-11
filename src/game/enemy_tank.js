@@ -21,6 +21,7 @@ class EnemyTank {
   reactive(){
     this.sp.x = Math.floor(Math.random() * game.getWidth());
     this.sp.y = 0;
+    this.sp.rotation = Math.random()*Math.PI/2 + Math.PI/4*3;
     this.sp.visible = true;
     aliveTankPool.push(this);
   }
@@ -34,8 +35,9 @@ class EnemyTank {
 
   onTick(){
     if(this.sp.visible) {
-      this.sp.y += EnemyTank.speed;
-      if(this.sp.y > game.getHeight()){
+      this.sp.y -= Math.cos(this.sp.rotation) * EnemyTank.speed;
+      this.sp.x += Math.sin(this.sp.rotation) * EnemyTank.speed;
+      if(this.sp.y > game.getHeight() || this.sp.x < 0 || this.sp.x > game.getWidth()){
         this.moveToIdleTankPool();
       }
 
