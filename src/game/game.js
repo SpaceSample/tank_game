@@ -2,114 +2,114 @@ import msgBus from './util/message_bus';
 import * as PIXI from 'pixi.js';
 
 const GAME_STATUS = {
-    UNINIT: 0,
-    INIT: 1,
-    LOADED: 2,
-    PLAYING: 3,
-    GAME_OVER:4
+  UNINIT: 0,
+  INIT: 1,
+  LOADED: 2,
+  PLAYING: 3,
+  GAME_OVER:4
 };
 
 const CAMP = {
-    WE: 0,
-    ENEMY: 1
+  WE: 0,
+  ENEMY: 1
 };
 
 class Game{
-    constructor(){
-        this.status = GAME_STATUS.UNINIT;
+  constructor(){
+    this.status = GAME_STATUS.UNINIT;
+  }
+
+  // game state machine
+  updateStatus(newStatus){
+    if(newStatus === GAME_STATUS.INIT) {
+      if (this.status !== GAME_STATUS.UNINIT) {
+        throw new Error('Game status wrong, do not init again.');
+      }
+      this.status = GAME_STATUS.INIT;
+    } else if(newStatus === GAME_STATUS.LOADED) {
+      if (this.status !== GAME_STATUS.INIT) {
+        throw new Error('Game status wrong, do not load again.');
+      }
+    } else if(newStatus === GAME_STATUS.PLAYING) {
+      if (this.status !== GAME_STATUS.LOADED && this.status !== GAME_STATUS.GAME_OVER) {
+        throw new Error('Game status wrong, do not start when init or playing.');
+      }
+      this.playContainer.visible = true;
+    } else if(newStatus === GAME_STATUS.GAME_OVER) {
+      if (this.status !== GAME_STATUS.PLAYING) {
+        throw new Error('Game status wrong, should from playing.');
+      }
+      this.playContainer.visible = false;
+    } else {
+      throw new Error('Wrong game status');
+    }
+    const old = this.status;
+    this.status = newStatus;
+    msgBus.send('game.statusChange', {old, new: newStatus});
+  }
+
+  init(app){
+    this.pixiApp = app;
+    if (this.loaderTmp) {
+      this.loaderTmp.forEach(resUrl => app.loader.add(resUrl));
     }
 
-    // game state machine
-    updateStatus(newStatus){
-        if(newStatus === GAME_STATUS.INIT) {
-            if (this.status !== GAME_STATUS.UNINIT) {
-                throw new Error('Game status wrong, do not init again.');
-            }
-            this.status = GAME_STATUS.INIT;
-        } else if(newStatus === GAME_STATUS.LOADED) {
-            if (this.status !== GAME_STATUS.INIT) {
-                throw new Error('Game status wrong, do not load again.');
-            }
-        } else if(newStatus === GAME_STATUS.PLAYING) {
-            if (this.status !== GAME_STATUS.LOADED && this.status !== GAME_STATUS.GAME_OVER) {
-                throw new Error('Game status wrong, do not start when init or playing.');
-            }
-            this.playContainer.visible = true;
-        } else if(newStatus === GAME_STATUS.GAME_OVER) {
-            if (this.status !== GAME_STATUS.PLAYING) {
-                throw new Error('Game status wrong, should from playing.');
-            }
-            this.playContainer.visible = false;
-        } else {
-            throw new Error('Wrong game status');
-        }
-        const old = this.status;
-        this.status = newStatus;
-        msgBus.send('game.statusChange', {old, new: newStatus});
-    }
+    this.playContainer = new PIXI.Container();
+    this.playContainer.visible = false;
+    app.stage.addChild(this.playContainer);
+    this.updateStatus(GAME_STATUS.INIT);
+    this.pixiApp.loader.load(() => {
+      setTimeout(() => this.onResLoaded(), 1000);
+      // TODO 
+      if(window.__DEBUG){
+        window.g = game;
+        window.msgBus = msgBus;
+        window.PIXI = PIXI;
+      }
+    });
+    msgBus.listen('start_screen.start', () => this.updateStatus(GAME_STATUS.PLAYING));
+    msgBus.listen('tank.gameover', () => this.updateStatus(GAME_STATUS.GAME_OVER));
+    msgBus.listen('gameover_screen.restart', () => this.updateStatus(GAME_STATUS.PLAYING));
+    this.pixiApp.ticker.start();
+  }
 
-    init(app){
-        this.pixiApp = app;
-        if (this.loaderTmp) {
-            this.loaderTmp.forEach(resUrl => app.loader.add(resUrl));
-        }
+  onResLoaded(){
+    this.updateStatus(GAME_STATUS.LOADED);
+  }
 
-        this.playContainer = new PIXI.Container();
-        this.playContainer.visible = false;
-        app.stage.addChild(this.playContainer);
-        this.updateStatus(GAME_STATUS.INIT);
-        this.pixiApp.loader.load(() => {
-            setTimeout(() => this.onResLoaded(), 1000);
-            // TODO 
-            if(window.__DEBUG){
-                window.g = game;
-                window.msgBus = msgBus;
-                window.PIXI = PIXI;
-            }
-        });
-        msgBus.listen('start_screen.start', () => this.updateStatus(GAME_STATUS.PLAYING));
-        msgBus.listen('tank.gameover', () => this.updateStatus(GAME_STATUS.GAME_OVER));
-        msgBus.listen('gameover_screen.restart', () => this.updateStatus(GAME_STATUS.PLAYING));
-        this.pixiApp.ticker.start();
+  addToLoader(resUrl){
+    if (this.status !== GAME_STATUS.UNINIT ) {
+      throw new Error('Cannot add to loader after init');
     }
+    if (this.pixiApp){
+      this.pixiApp.loader.add(resUrl);
+    } else {
+      if(!this.loaderTmp) {
+        this.loaderTmp = [];
+      }
+      this.loaderTmp.push(resUrl);
+    }
+  }
 
-    onResLoaded(){
-        this.updateStatus(GAME_STATUS.LOADED);
-    }
+  getStage(){
+    return this.pixiApp.stage;
+  }
 
-    addToLoader(resUrl){
-        if (this.status !== GAME_STATUS.UNINIT ) {
-            throw new Error('Cannot add to loader after init');
-        }
-        if (this.pixiApp){
-            this.pixiApp.loader.add(resUrl);
-        } else {
-            if(!this.loaderTmp) {
-                this.loaderTmp = [];
-            }
-            this.loaderTmp.push(resUrl);
-        }
-    }
+  getPlayContainer(){
+    return this.playContainer;
+  }
 
-    getStage(){
-        return this.pixiApp.stage;
-    }
+  getTicker() {
+    return this.pixiApp.ticker;
+  }
 
-    getPlayContainer(){
-        return this.playContainer;
-    }
+  getWidth() {
+    return window.innerWidth;
+  }
 
-    getTicker() {
-        return this.pixiApp.ticker;
-    }
-
-    getWidth() {
-        return window.innerWidth;
-    }
-
-    getHeight () {
-        return window.innerHeight;
-    }
+  getHeight () {
+    return window.innerHeight;
+  }
 }
 
 Game.STATUS = GAME_STATUS;
